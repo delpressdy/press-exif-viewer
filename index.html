@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Press is a private, browser-only EXIF viewer and metadata cleaner for photos."
+    >
+    <title>Press - Image EXIF Viewer and Metadata Cleaner</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://unpkg.com">
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    >
+    <link rel="stylesheet" href="styles.css">
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js"
+    ></script>
+    <script
+      defer
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"
+    ></script>
+    <script
+      defer
+      src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"
+    ></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    <div class="page-shell">
+      <header class="site-header">
+        <nav class="topbar" aria-label="Primary">
+          <a class="brand" href="#top" aria-label="Press home">
+            <span class="brand-mark" aria-hidden="true">P</span>
+            <span>Press</span>
+          </a>
+          <div class="topbar-actions" aria-label="Page shortcuts">
+            <a href="#results">Results</a>
+            <a href="#privacy">Privacy</a>
+            <a href="#faq">FAQ</a>
+          </div>
+        </nav>
+
+        <section class="hero" id="top" aria-labelledby="hero-title">
+          <div class="hero-copy">
+            <p class="eyebrow">Private photo metadata checker</p>
+            <h1 id="hero-title">Press</h1>
+            <p class="tagline">See what your photos are hiding.</p>
+            <p class="hero-description">
+              Check, clean, and download safer images with a friendly EXIF viewer
+              that runs fully inside your browser.
+            </p>
+            <div class="trust-row" aria-label="Privacy promises">
+              <span><i data-lucide="shield-check"></i>No upload</span>
+              <span><i data-lucide="server-off"></i>No server</span>
+              <span><i data-lucide="radar"></i>No tracking</span>
+            </div>
+            <p class="privacy-reassurance">
+              Your images are processed locally in your browser. They are not
+              uploaded to any server. Only the optional love note sends text to
+              an email endpoint.
+            </p>
+          </div>
+
+          <div class="upload-panel" aria-labelledby="upload-title">
+            <div class="upload-header">
+              <div>
+                <p class="section-kicker">Start here</p>
+                <h2 id="upload-title">Drop your photos here</h2>
+              </div>
+              <img
+                src="assets/sample-placeholder.svg"
+                width="92"
+                height="92"
+                alt=""
+                aria-hidden="true"
+              >
+            </div>
+
+            <input
+              class="sr-only"
+              type="file"
+              id="fileInput"
+              accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp,.heic,.heif"
+              multiple
+            >
+
+            <div
+              class="dropzone"
+              id="dropzone"
+              role="button"
+              tabindex="0"
+              aria-describedby="upload-help supported-formats"
+            >
+              <i data-lucide="upload-cloud" class="drop-icon"></i>
+              <p class="drop-title">Drop your photos here and Press will inspect them locally.</p>
+              <p id="upload-help" class="drop-copy">
+                Drag in multiple images, or use the file picker. Each image gets
+                its own private metadata card.
+              </p>
+              <button class="button button-primary" type="button" id="pickFiles">
+                <i data-lucide="image-plus"></i>
+                Choose photos
+              </button>
+              <p id="supported-formats" class="format-note">
+                Supports JPG, PNG, and WebP. HEIC/HEIF will show a friendly
+                unsupported message in this browser-only version.
+              </p>
+            </div>
+
+            <div id="uploadFeedback" class="upload-feedback" aria-live="polite"></div>
+          </div>
+        </section>
+      </header>
+
+      <main id="main">
+        <section class="batch-actions" id="batchActions" hidden aria-label="Batch actions">
+          <div>
+            <p class="section-kicker">Batch actions</p>
+            <h2 id="batchTitle">Ready when you are</h2>
+            <p id="batchStatus">Metadata removal creates a new cleaned copy. Your original file is not modified.</p>
+          </div>
+          <div class="batch-buttons">
+            <button class="button button-primary" type="button" id="cleanAll">
+              <i data-lucide="eraser"></i>
+              Remove Metadata From All
+            </button>
+            <button class="button button-secondary" type="button" id="downloadAll">
+              <i data-lucide="archive"></i>
+              Download All Cleaned Images
+            </button>
+            <button class="button button-ghost" type="button" id="clearAll">
+              <i data-lucide="trash-2"></i>
+              Clear all
+            </button>
+          </div>
+        </section>
+
+        <section class="results-section" id="results" aria-label="Image metadata results">
+          <div class="empty-state">
+            <img src="assets/sample-placeholder.svg" alt="" width="148" height="148">
+            <p class="section-kicker">Nothing loaded yet</p>
+            <h2>Your photo privacy checkup will appear here.</h2>
+            <p>
+              Add one or more photos to see camera details, GPS data, image
+              properties, copyright fields, and a full searchable EXIF table.
+            </p>
+          </div>
+        </section>
+
+        <section class="love-section" aria-labelledby="love-title">
+          <div class="love-copy">
+            <p class="section-kicker">Tiny local delight</p>
+            <h2 id="love-title">Send Press a little love</h2>
+            <p>
+              This playful note is sent to delpressdyy@gmail.com through the
+              free FormSubmit endpoint, then the recent animation message is
+              remembered locally in this browser.
+            </p>
+          </div>
+          <form
+            class="love-form"
+            id="loveForm"
+            action="https://formsubmit.co/ajax/delpressdyy@gmail.com"
+            method="POST"
+          >
+            <input type="hidden" name="_subject" value="New Press love message">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_url" id="loveFormUrl" value="">
+            <input
+              class="sr-only"
+              type="text"
+              name="_honey"
+              tabindex="-1"
+              autocomplete="off"
+              aria-hidden="true"
+            >
+            <label for="loveName">Name</label>
+            <div class="love-controls">
+              <input
+                id="loveName"
+                name="name"
+                type="text"
+                maxlength="40"
+                autocomplete="name"
+                placeholder="Your name"
+              >
+              <button class="button button-primary" type="submit">
+                <i data-lucide="heart"></i>
+                Send love
+              </button>
+            </div>
+            <label for="loveNote">Message</label>
+            <textarea
+              id="loveNote"
+              name="message"
+              maxlength="600"
+              rows="4"
+              placeholder="Write a short note for Press"
+            ></textarea>
+            <p class="helper-text">
+              Email delivery works from localhost or GitHub Pages. First-time
+              FormSubmit use may require confirming the recipient email. No
+              image files are sent with this form.
+            </p>
+            <div class="love-message" id="loveMessage" aria-live="polite"></div>
+            <ul class="love-list" id="loveList"></ul>
+          </form>
+          <div class="heart-layer" id="heartLayer" aria-hidden="true"></div>
+        </section>
+
+        <section class="privacy-section" id="privacy" aria-labelledby="privacy-title">
+          <p class="section-kicker">Privacy model</p>
+          <h2 id="privacy-title">No image upload. No tracking.</h2>
+          <div class="privacy-grid">
+            <article>
+              <i data-lucide="monitor-check"></i>
+              <h3>Local processing</h3>
+              <p>Files are read with browser APIs such as FileReader, Canvas, Blob, and object URLs.</p>
+            </article>
+            <article>
+              <i data-lucide="map-pinned"></i>
+              <h3>Interactive GPS</h3>
+              <p>GPS maps appear only when metadata exists. Live browser location is optional and permission-based.</p>
+            </article>
+            <article>
+              <i data-lucide="copy"></i>
+              <h3>Originals stay intact</h3>
+              <p>Cleaning creates a new JPEG copy. Your source file is never modified by Press.</p>
+            </article>
+            <article>
+              <i data-lucide="send"></i>
+              <h3>Optional email note</h3>
+              <p>The playful message form sends only text fields to FormSubmit so it can reach the requested inbox.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="faq-section" id="faq" aria-labelledby="faq-title">
+          <p class="section-kicker">Helpful answers</p>
+          <h2 id="faq-title">Frequently asked questions</h2>
+
+          <div class="faq-grid">
+            <details>
+              <summary>Does uploading photos to social media remove metadata?</summary>
+              <p>Often, yes. Many social platforms strip most EXIF metadata during upload, but behavior varies by app, file type, and privacy settings.</p>
+            </details>
+            <details>
+              <summary>Can removed metadata be restored?</summary>
+              <p>Usually no. A cleaned copy made by re-rendering pixels does not keep the original embedded metadata. Keep the original file separately if you need those records.</p>
+            </details>
+            <details>
+              <summary>Why does my image have no GPS data?</summary>
+              <p>This is common for screenshots, edited files, social media downloads, and cameras or phones with location tagging disabled.</p>
+            </details>
+            <details>
+              <summary>Does Messenger or private messaging remove metadata?</summary>
+              <p>Many messaging apps remove or rewrite metadata, especially when compressing images. Do not assume every private message keeps or removes the same fields.</p>
+            </details>
+            <details>
+              <summary>Is metadata dangerous?</summary>
+              <p>Metadata is not automatically dangerous, but it can reveal sensitive details such as where a photo was taken, the device used, or editing software.</p>
+            </details>
+            <details>
+              <summary>Are my images uploaded to a server?</summary>
+              <p>No. Press processes images locally in your browser and does not upload image files. The optional love form sends only text fields through FormSubmit.</p>
+            </details>
+            <details>
+              <summary>How does the love message reach the email inbox?</summary>
+              <p>Press uses FormSubmit, a free static-site form endpoint. The first submission may require confirming the recipient email before delivery starts.</p>
+            </details>
+            <details>
+              <summary>Can this tool remove metadata from all image formats?</summary>
+              <p>No browser tool can handle every format perfectly. Press supports common JPG, PNG, and WebP workflows, then creates a cleaned browser-rendered copy.</p>
+            </details>
+            <details>
+              <summary>Why does the cleaned file become JPEG?</summary>
+              <p>JPEG export is widely supported by browser Canvas and reliably strips embedded metadata. Press tells you when conversion happens.</p>
+            </details>
+            <details>
+              <summary>What is EXIF data?</summary>
+              <p>EXIF is embedded image metadata. It can include camera model, exposure settings, timestamps, orientation, GPS coordinates, and software details.</p>
+            </details>
+            <details>
+              <summary>What is GPS metadata?</summary>
+              <p>GPS metadata stores latitude, longitude, altitude, and sometimes a timestamp. It can reveal where a photo was taken.</p>
+            </details>
+            <details>
+              <summary>Can screenshots contain metadata?</summary>
+              <p>Yes, but usually less than camera photos. Screenshots may include device, app, color, date, or software fields depending on the platform.</p>
+            </details>
+            <details>
+              <summary>Can edited images still contain old metadata?</summary>
+              <p>Sometimes. Editing apps may preserve, remove, or add metadata. A shared export can still include older camera or location fields.</p>
+            </details>
+            <details>
+              <summary>Is this tool safe to use?</summary>
+              <p>Press is designed for local use with no backend. As with any privacy tool, inspect important files before sharing and keep originals when you need records.</p>
+            </details>
+            <details>
+              <summary>Can metadata prove when and where a photo was taken?</summary>
+              <p>Metadata can be useful evidence, but it can be missing, edited, inaccurate, or copied between files. Treat it as a clue, not absolute proof.</p>
+            </details>
+            <details>
+              <summary>Why do some apps strip metadata automatically?</summary>
+              <p>Apps strip metadata to reduce file size, normalize uploads, and protect user privacy. The exact fields removed vary by platform.</p>
+            </details>
+            <details>
+              <summary>Does removing metadata reduce image quality?</summary>
+              <p>Cleaning with Canvas creates a new image. Press uses a high-quality JPEG export, but any conversion can slightly change file size or visual quality.</p>
+            </details>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>
+          Press is a pure front-end photo privacy tool. Image processing stays
+          local; optional love notes use FormSubmit email delivery. Metadata
+          availability depends on the source image, camera, app, and file format.
+        </p>
+      </footer>
+    </div>
+
+    <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+  </body>
+</html>
