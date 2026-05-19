@@ -15,7 +15,7 @@ Press is a pure front-end image metadata viewer and cleaner. It helps people ins
 - Per-image clean copy downloads.
 - Batch metadata removal.
 - ZIP download for multiple cleaned images using JSZip.
-- Playful "Send love" form that sends text to `delpressdyy@gmail.com` through FormSubmit when served from localhost or GitHub Pages, and keeps recent animation messages in localStorage after successful sends.
+- Playful "Send love" form that sends text through Web3Forms and keeps recent animation messages in localStorage after successful sends.
 - Responsive, accessible, GitHub Pages-ready interface.
 
 ## How It Works
@@ -26,7 +26,7 @@ Press is a pure front-end image metadata viewer and cleaner. It helps people ins
 4. Browser image decoding provides basic properties such as pixel dimensions.
 5. If GPS metadata exists, Press shows an interactive Leaflet map with OpenStreetMap tiles, map-app links, coordinate copy, and optional live browser GPS comparison.
 6. When cleaning an image, Press loads the pixels into Canvas and exports a new high-quality JPEG Blob.
-7. The optional love form sends text fields through FormSubmit's AJAX endpoint.
+7. The optional love form sends text fields through Web3Forms.
 8. The cleaned Blob is offered as a download using a filename like:
 
 ```text
@@ -41,7 +41,7 @@ Press has no backend, no authentication, no database, and no analytics. Images a
 
 Interactive GPS maps use OpenStreetMap tiles through Leaflet. The map is created only when GPS metadata exists and the Location tab is opened. Live GPS uses the browser Geolocation API only after the user grants permission.
 
-The love message form sends only text fields to `delpressdyy@gmail.com` through FormSubmit. First-time FormSubmit use requires confirming the recipient email before delivery starts. No image files are submitted with this form.
+The love message form sends only text fields through Web3Forms. No image files are submitted with this form.
 
 ## Run Locally
 
@@ -51,7 +51,7 @@ You can open `index.html` directly in a browser for image inspection and cleanin
 press/index.html
 ```
 
-Email delivery through FormSubmit does not reliably work from a raw `file://` page. To test the love form, run a local static server:
+To test the love form in the same kind of environment used by GitHub Pages, run a local static server:
 
 ```bash
 cd press
@@ -64,18 +64,16 @@ Then visit:
 http://localhost:8000
 ```
 
-The image viewer and cleaner work as static files. Browser geolocation and AJAX form submission should be tested from `http://localhost` or GitHub Pages, not from a `file://` URL.
+The image viewer and cleaner work as static files. Browser geolocation and form submission should be tested from `http://localhost` or GitHub Pages.
 
-## Test FormSubmit Email Delivery
+## Test Web3Forms Delivery
 
 1. Start the local server with `python -m http.server 8000` from the `press` folder, or open the deployed GitHub Pages URL.
-2. Submit the love form once.
-3. Check `delpressdyy@gmail.com`, including Spam and Promotions, for a FormSubmit activation email.
-4. Confirm the activation link from FormSubmit.
-5. Submit the love form again.
-6. Verify the second message arrives in `delpressdyy@gmail.com`.
+2. Submit the love form.
+3. Confirm the app shows a success message.
+4. Check the Web3Forms destination inbox connected to the access key.
 
-Until activation is confirmed, FormSubmit may send activation emails instead of forwarding messages. This is expected for first-time setup.
+The Web3Forms access key is a public form identifier, not a secret server API key. For stronger protection after deployment, configure allowed domains in the Web3Forms dashboard if your plan supports it.
 
 ## Deploy To GitHub Pages
 
@@ -131,7 +129,7 @@ No build command is required.
 - [OpenStreetMap](https://www.openstreetmap.org/) map tiles.
 - [JSZip](https://stuk.github.io/jszip/) for client-side ZIP downloads.
 - [Lucide](https://lucide.dev/) for interface icons.
-- [FormSubmit](https://formsubmit.co/) for static-site email form delivery.
+- [Web3Forms](https://web3forms.com/) for static-site form delivery.
 
 All libraries are loaded from public CDNs in `index.html`.
 
@@ -143,7 +141,7 @@ All libraries are loaded from public CDNs in `index.html`.
 - Very large images can hit browser memory or Canvas limits.
 - Some browsers handle EXIF orientation differently during image decoding.
 - Live GPS requires browser permission and may be unavailable on insecure origins or privacy-restricted devices.
-- The email form depends on FormSubmit availability, recipient email activation, and an `http://localhost` or GitHub Pages origin.
+- The email form depends on Web3Forms availability and the configured access key destination.
 - Some metadata fields may be missing, rewritten, or stripped by cameras, editing apps, messaging apps, and social platforms.
 - Metadata can be edited, removed, or inaccurate, so it should not be treated as absolute proof.
 

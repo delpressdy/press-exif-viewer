@@ -15,7 +15,8 @@
     { id: "full", label: "Full EXIF", icon: "search" },
   ];
 
-  const loveEndpoint = "https://formsubmit.co/ajax/delpressdyy@gmail.com";
+  const web3FormsEndpoint = "https://api.web3forms.com/submit";
+  const web3FormsAccessKey = "fa6d2560-54ee-402f-942e-e933135ea66f";
 
   const state = {
     items: [],
@@ -53,7 +54,7 @@
     elements.loveForm = document.querySelector("#loveForm");
     elements.loveName = document.querySelector("#loveName");
     elements.loveNote = document.querySelector("#loveNote");
-    elements.loveFormUrl = document.querySelector("#loveFormUrl");
+    elements.lovePageUrl = document.querySelector("#lovePageUrl");
     elements.loveMessage = document.querySelector("#loveMessage");
     elements.loveList = document.querySelector("#loveList");
     elements.heartLayer = document.querySelector("#heartLayer");
@@ -1086,7 +1087,7 @@
     try {
       await cleanItem(item, { renderDuring: true });
       render();
-      showToast(`${item.outputFileName} is ready to download.`, "success");
+      showToast("Metadata removed. Clean copy ready.", "success");
     } catch (error) {
       render();
       showToast(error.message || "Press could not clean this image.", "error");
@@ -1122,7 +1123,7 @@
     render();
 
     if (!options.silent) {
-      showToast(`${cleanedCount} clean cop${cleanedCount === 1 ? "y" : "ies"} ready.`, "success");
+      showToast(`Metadata removed from ${cleanedCount} image${cleanedCount === 1 ? "" : "s"}. Clean copies ready.`, "success");
     }
   }
 
@@ -1381,47 +1382,48 @@
     const displayMessage = `I love you, Press \u2014 from ${name} \u{1F499}`;
     const submitButton = elements.loveForm.querySelector("button[type='submit']");
 
-    if (window.location.protocol === "file:") {
-      elements.loveMessage.textContent =
-        "Email sending works after opening Press from localhost or GitHub Pages.";
-      showToast("Open Press from localhost or GitHub Pages to test email delivery.", "warning");
-      return;
-    }
-
     submitButton.disabled = true;
-    elements.loveMessage.textContent = "Sending your note to delpressdyy@gmail.com...";
+    elements.loveMessage.textContent = "Sending your note...";
+    showToast("Sending your note...", "info");
 
     try {
-      if (elements.loveFormUrl) {
-        elements.loveFormUrl.value = window.location.href;
+      if (elements.lovePageUrl) {
+        elements.lovePageUrl.value = window.location.href;
       }
 
       const formData = new FormData(elements.loveForm);
-      formData.set("name", name);
-      formData.set("message", note);
-      formData.set("press_animation_message", displayMessage);
+      const payload = Object.fromEntries(formData);
+      payload.access_key = web3FormsAccessKey;
+      payload.subject = "New Press love message";
+      payload.from_name = "Press";
+      payload.name = name;
+      payload.message = note;
+      payload.botcheck = false;
+      payload.page_url = window.location.href;
+      payload.press_animation_message = displayMessage;
 
-      const response = await fetch(elements.loveForm.action || loveEndpoint, {
+      const response = await fetch(elements.loveForm.action || web3FormsEndpoint, {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: formData,
+        body: JSON.stringify(payload),
       });
+      const result = await response.json().catch(() => ({}));
 
-      if (!response.ok) {
-        throw new Error("FormSubmit did not accept the message.");
+      if (!response.ok || result.success === false) {
+        throw new Error(result.message || "Web3Forms did not accept the message.");
       }
 
       elements.loveMessage.textContent = displayMessage;
       saveLoveMessage(displayMessage);
       burstHearts();
       elements.loveForm.reset();
-      showToast("Love sent to delpressdyy@gmail.com.", "success");
+      showToast("Love sent. Thanks for the note.", "success");
     } catch (error) {
-      elements.loveMessage.textContent =
-        "Email was not delivered yet. Check delpressdyy@gmail.com, including Spam and Promotions, and confirm the FormSubmit activation email. Then submit again from localhost or GitHub Pages.";
-      showToast("FormSubmit needs activation or is unavailable right now.", "warning");
+      elements.loveMessage.textContent = "Message could not be sent right now. Please try again later.";
+      showToast("Message could not be sent right now. Please try again later.", "error");
     } finally {
       submitButton.disabled = false;
     }
@@ -1882,14 +1884,15 @@
             : "info";
 
     toast.innerHTML = `<i data-lucide="${icon}"></i><span>${escapeHtml(message)}</span>`;
+    toast.setAttribute("role", type === "error" || type === "warning" ? "alert" : "status");
     elements.toastRegion.append(toast);
     refreshIcons();
 
     window.setTimeout(() => {
       toast.style.opacity = "0";
-      toast.style.transform = "translateY(8px)";
-      window.setTimeout(() => toast.remove(), 180);
-    }, 4200);
+      toast.style.transform = "translateY(-12px) scale(0.98)";
+      window.setTimeout(() => toast.remove(), 220);
+    }, 6200);
   }
 
   function refreshIcons() {

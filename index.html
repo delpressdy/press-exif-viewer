@@ -39,7 +39,10 @@
     <script defer src="app.js"></script>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to main content</a>
+    <a class="back-to-top" href="#top" aria-label="Back to top" title="Back to top">
+      <i data-lucide="arrow-up"></i>
+      <span class="sr-only">Back to top</span>
+    </a>
 
     <div class="page-shell">
       <header class="site-header">
@@ -167,25 +170,24 @@
             <p class="section-kicker">Tiny local delight</p>
             <h2 id="love-title">Send Press a little love</h2>
             <p>
-              This playful note is sent to delpressdyy@gmail.com through the
-              free FormSubmit endpoint, then the recent animation message is
-              remembered locally in this browser.
+              Your note is sent through a static form service. No image files
+              are sent, and recent animation messages stay in this browser.
             </p>
           </div>
           <form
             class="love-form"
             id="loveForm"
-            action="https://formsubmit.co/ajax/delpressdyy@gmail.com"
+            action="https://api.web3forms.com/submit"
             method="POST"
           >
-            <input type="hidden" name="_subject" value="New Press love message">
-            <input type="hidden" name="_template" value="table">
-            <input type="hidden" name="_captcha" value="false">
-            <input type="hidden" name="_url" id="loveFormUrl" value="">
+            <input type="hidden" name="access_key" value="fa6d2560-54ee-402f-942e-e933135ea66f">
+            <input type="hidden" name="subject" value="New Press love message">
+            <input type="hidden" name="from_name" value="Press">
+            <input type="hidden" name="page_url" id="lovePageUrl" value="">
             <input
               class="sr-only"
-              type="text"
-              name="_honey"
+              type="checkbox"
+              name="botcheck"
               tabindex="-1"
               autocomplete="off"
               aria-hidden="true"
@@ -214,9 +216,8 @@
               placeholder="Write a short note for Press"
             ></textarea>
             <p class="helper-text">
-              Email delivery works from localhost or GitHub Pages. First-time
-              FormSubmit use may require confirming the recipient email. No
-              image files are sent with this form.
+              This sends only the name and note text. Your photos never leave
+              this browser.
             </p>
             <div class="love-message" id="loveMessage" aria-live="polite"></div>
             <ul class="love-list" id="loveList"></ul>
@@ -246,7 +247,7 @@
             <article>
               <i data-lucide="send"></i>
               <h3>Optional email note</h3>
-              <p>The playful message form sends only text fields to FormSubmit so it can reach the requested inbox.</p>
+              <p>The playful message form sends only text fields through a static form service.</p>
             </article>
           </div>
         </section>
@@ -278,11 +279,11 @@
             </details>
             <details>
               <summary>Are my images uploaded to a server?</summary>
-              <p>No. Press processes images locally in your browser and does not upload image files. The optional love form sends only text fields through FormSubmit.</p>
+              <p>No. Press processes images locally in your browser and does not upload image files. The optional love form sends only text fields.</p>
             </details>
             <details>
-              <summary>How does the love message reach the email inbox?</summary>
-              <p>Press uses FormSubmit, a free static-site form endpoint. The first submission may require confirming the recipient email before delivery starts.</p>
+              <summary>How does the love message get sent?</summary>
+              <p>Press uses a static-site form service for the playful note. It does not send image files or metadata.</p>
             </details>
             <details>
               <summary>Can this tool remove metadata from all image formats?</summary>
@@ -331,7 +332,7 @@
       <footer class="site-footer">
         <p>
           Press is a pure front-end photo privacy tool. Image processing stays
-          local; optional love notes use FormSubmit email delivery. Metadata
+          local; optional love notes use static form delivery. Metadata
           availability depends on the source image, camera, app, and file format.
         </p>
       </footer>
