@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-label="A stylized private photo metadata card">
+  <defs>
+    <linearGradient id="photo" x1="38" y1="44" x2="168" y2="174" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ecf6ff"/>
+      <stop offset=".55" stop-color="#e7fbf5"/>
+      <stop offset="1" stop-color="#fff2e8"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="68" y1="62" x2="154" y2="148" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1c6dd0"/>
+      <stop offset="1" stop-color="#0e8f80"/>
+    </linearGradient>
+    <filter id="shadow" x="20" y="18" width="180" height="184" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#2c4060" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <rect width="220" height="220" rx="42" fill="#fbfcff"/>
+  <g filter="url(#shadow)">
+    <rect x="42" y="34" width="136" height="152" rx="16" fill="white"/>
+    <rect x="54" y="48" width="112" height="76" rx="10" fill="url(#photo)"/>
+    <circle cx="80" cy="72" r="11" fill="#ffcc66"/>
+    <path d="M62 112 91 84l19 18 15-14 31 24H62Z" fill="url(#mark)" opacity=".84"/>
+    <rect x="54" y="138" width="54" height="7" rx="3.5" fill="#d7e3f3"/>
+    <rect x="54" y="154" width="88" height="7" rx="3.5" fill="#d7e3f3"/>
+    <rect x="54" y="169" width="68" height="7" rx="3.5" fill="#d7e3f3"/>
+  </g>
+  <g>
+    <rect x="132" y="122" width="54" height="54" rx="15" fill="#152033"/>
+    <path d="M159 136c7.8 0 14 6.1 14 13.7 0 9.8-14 18.9-14 18.9s-14-9.1-14-18.9c0-7.6 6.2-13.7 14-13.7Zm0 8.4a5.3 5.3 0 1 0 0 10.6 5.3 5.3 0 0 0 0-10.6Z" fill="#25b9a8"/>
+  </g>
+</svg>
